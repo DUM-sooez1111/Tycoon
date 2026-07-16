@@ -43,6 +43,8 @@ function showEmptyState() {
 }
 
 function showPlace(place) {
+  document.querySelectorAll('.place.selected').forEach(item => item.classList.remove('selected'));
+  place.classList.add('selected');
   selected = place;
   const level = Number(place.dataset.level);
   selectedName.textContent = place.dataset.name;
