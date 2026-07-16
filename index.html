@@ -10,11 +10,11 @@
     <main class="game-screen">
       <header class="resource-bar">
         <div class="resources">
-          <div class="resource"><span class="resource-icon coin">●</span><strong id="gold">12,345,678</strong></div>
-          <div class="resource"><span class="resource-icon happy">●</span><strong id="happiness">95%</strong></div>
-          <div class="resource"><span class="resource-icon people">♟</span><strong id="population">523</strong></div>
+          <div class="resource"><span class="resource-icon coin">●</span><strong id="gold">20,000</strong></div>
+          <div class="resource"><span class="resource-icon happy">●</span><strong id="happiness">50%</strong></div>
+          <div class="resource"><span class="resource-icon people">♟</span><strong id="population">0</strong></div>
         </div>
-        <div class="date-card"><span>▣</span><strong>1년 5월 2주</strong></div>
+        <div class="date-card"><span>▣</span><strong>1년 1월 1주</strong></div>
         <div class="time-controls" aria-label="시간 조절">
           <button type="button" class="time-button" aria-label="일시정지">Ⅱ</button>
           <button type="button" class="time-button" aria-label="재생">▶</button>
@@ -40,44 +40,32 @@
           <div class="flower-patch flowers-one">✿ ✿</div><div class="flower-patch flowers-two">✿ ✿ ✿</div><div class="flower-patch flowers-three">✿ ✿</div>
           <div class="trees trees-one">♣ ♣ ♣</div><div class="trees trees-two">♣ ♣</div><div class="trees trees-three">♣ ♣ ♣</div><div class="trees trees-four">♣ ♣</div>
 
-          <button type="button" class="place cafe" data-name="카페" data-level="3" data-income="1,230" data-description="향긋한 커피로 방문객의 만족도를 높입니다.">
-            <span class="building roof"></span><span class="building-body">☕</span><span class="awning"></span><span class="shop-label">카페 <b>Lv.3 ★★★☆☆</b></span>
-          </button>
-          <button type="button" class="place shop" data-name="선물 상점" data-level="2" data-income="980" data-description="귀여운 기념품을 판매하는 인기 상점입니다.">
-            <span class="building roof"></span><span class="building-body">🎁</span><span class="awning"></span><span class="shop-label">상점 <b>Lv.2 ★★☆☆☆</b></span>
-          </button>
-          <button type="button" class="place coaster" data-name="롤러코스터" data-level="4" data-income="3,540" data-description="파크의 대표 놀이기구입니다. 많은 방문객을 부릅니다.">
-            <span class="loop">◯</span><span class="track">⌁</span><span class="cart">●●</span><span class="shop-label">롤러코스터 <b>Lv.4 ★★★★☆</b></span>
-          </button>
-          <button type="button" class="place arcade" data-name="게임센터" data-level="2" data-income="1,670" data-description="비가 와도 즐길 수 있는 실내 오락 공간입니다.">
-            <span class="building roof"></span><span class="building-body">🎮</span><span class="awning"></span><span class="shop-label">게임센터 <b>Lv.2 ★★☆☆☆</b></span>
-          </button>
-          <button type="button" class="place bakery" data-name="베이커리" data-level="2" data-income="1,110" data-description="갓 구운 빵 냄새가 산책로를 채웁니다.">
-            <span class="building roof"></span><span class="building-body">🥖</span><span class="awning"></span><span class="shop-label">베이커리 <b>Lv.2 ★★☆☆☆</b></span>
-          </button>
-          <button type="button" class="fountain" data-name="중앙 분수" data-level="1" data-income="0" data-description="공원의 중심 장식입니다. 주변 만족도가 오릅니다."><span>⛲</span></button>
-          <span class="visitor visitor-a">♟</span><span class="visitor visitor-b">♟</span><span class="visitor visitor-c">♟</span><span class="visitor visitor-d">♟</span><span class="visitor visitor-e">♟</span>
+          <button type="button" class="empty-lot lot-one" data-lot="1">＋<span>빈 부지</span></button>
+          <button type="button" class="empty-lot lot-two" data-lot="2">＋<span>빈 부지</span></button>
+          <button type="button" class="empty-lot lot-three" data-lot="3">＋<span>빈 부지</span></button>
+          <button type="button" class="empty-lot lot-four" data-lot="4">＋<span>빈 부지</span></button>
+          <button type="button" class="empty-lot lot-five" data-lot="5">＋<span>빈 부지</span></button>
         </section>
 
         <aside class="info-panel">
-          <p class="panel-kicker">타이쿤 파크</p>
-          <h1 id="selected-name">카페</h1>
-          <div class="stars" id="selected-stars">★★★☆☆</div>
-          <div class="info-row"><span>수익</span><strong id="selected-income">+1,230/분</strong></div>
-          <div class="info-row"><span>레벨</span><strong id="selected-level">Lv.3</strong></div>
-          <p id="selected-description">향긋한 커피로 방문객의 만족도를 높입니다.</p>
-          <button id="upgrade-button" type="button" class="upgrade">↑ 업그레이드 <small>₩ 2,500</small></button>
+          <p class="panel-kicker">새로운 시작</p>
+          <h1 id="selected-name">새 파크</h1>
+          <div class="stars" id="selected-stars">☆☆☆☆☆</div>
+          <div class="info-row"><span>수익</span><strong id="selected-income">+0/분</strong></div>
+          <div class="info-row"><span>레벨</span><strong id="selected-level">Lv.1</strong></div>
+          <p id="selected-description">하단에서 건물을 고른 뒤 빈 부지를 눌러 첫 상점을 지어보세요.</p>
+          <button id="upgrade-button" type="button" class="upgrade" disabled>건물을 선택하세요</button>
         </aside>
       </section>
 
       <footer class="build-menu">
-        <button type="button" class="build-button active"><span>♣</span>길</button>
-        <button type="button" class="build-button"><span>▥</span>편의시설</button>
-        <button type="button" class="build-button"><span>🏪</span>상점</button>
-        <button type="button" class="build-button"><span>🎠</span>놀이기구</button>
-        <button type="button" class="build-button"><span>⛲</span>장식</button>
-        <button type="button" class="build-button"><span>•••</span>기타</button>
-        <section class="goal"><b>목표</b><span>★ 손님 수 1,000명 달성</span><div><i></i><em>523 / 1000</em></div></section>
+        <button type="button" class="build-button" data-kind="road"><span>♣</span>길</button>
+        <button type="button" class="build-button" data-kind="facility"><span>▥</span>편의시설</button>
+        <button type="button" class="build-button active" data-kind="shop"><span>🏪</span>상점</button>
+        <button type="button" class="build-button" data-kind="ride"><span>🎠</span>놀이기구</button>
+        <button type="button" class="build-button" data-kind="decor"><span>⛲</span>장식</button>
+        <button type="button" class="build-button" data-kind="other"><span>•••</span>기타</button>
+        <section class="goal"><b>목표</b><span>★ 손님 수 1,000명 달성</span><div><i></i><em id="goal-count">0 / 1000</em></div></section>
       </footer>
     </main>
     <script src="game.js"></script>
