@@ -9,7 +9,7 @@ const gold = document.querySelector('#gold');
 const population = document.querySelector('#population');
 const happiness = document.querySelector('#happiness');
 const goalCount = document.querySelector('#goal-count');
-const lotPositions = { 1: 'cafe', 2: 'shop', 3: 'coaster', 4: 'arcade', 5: 'bakery' };
+const unlockedCount = document.querySelector('#unlocked-count');
 const buildingData = {
   road: { name: '산책로', icon: '🧱', income: 0, cost: 400, description: '방문객이 이동하는 길을 넓힙니다.' },
   facility: { name: '휴게 시설', icon: '🪑', income: 300, cost: 900, description: '방문객이 잠시 쉬어갈 수 있는 공간입니다.' },
@@ -18,16 +18,19 @@ const buildingData = {
   decor: { name: '작은 분수', icon: '⛲', income: 0, cost: 1200, description: '파크의 만족도를 높이는 장식입니다.' },
   other: { name: '간이 매점', icon: '🥖', income: 450, cost: 1100, description: '간단한 간식을 판매하는 작은 매점입니다.' },
 };
+const buildingThemes = { road: 'road-building', facility: 'cafe', shop: 'shop', ride: 'ride-building', decor: 'decor-building', other: 'bakery' };
 let selected = null;
 let selectedKind = 'shop';
 let goldValue = 20000;
 let visitors = 0;
+let unlockedLots = 1;
 
 function updateStats() {
   gold.textContent = goldValue.toLocaleString('ko-KR');
   population.textContent = visitors.toLocaleString('ko-KR');
   happiness.textContent = `${Math.min(50 + Math.floor(visitors / 8), 99)}%`;
   goalCount.textContent = `${visitors} / 1000`;
+  unlockedCount.textContent = unlockedLots;
   document.querySelector('.goal i').style.width = `${Math.min(visitors / 10, 100)}%`;
 }
 
@@ -37,7 +40,7 @@ function showEmptyState() {
   selectedStars.textContent = '☆☆☆☆☆';
   selectedIncome.textContent = '+0/분';
   selectedLevel.textContent = 'Lv.1';
-  selectedDescription.textContent = '하단에서 건물을 고른 뒤 빈 부지를 눌러 첫 상점을 지어보세요.';
+  selectedDescription.textContent = '열린 시작 부지에 첫 상점을 짓거나, 잠긴 칸을 해금해 파크를 넓혀보세요.';
   upgradeButton.disabled = true;
   upgradeButton.textContent = '건물을 선택하세요';
 }
@@ -56,6 +59,24 @@ function showPlace(place) {
   upgradeButton.innerHTML = '↑ 업그레이드 <small>₩ 2,500</small>';
 }
 
+function bindEmptyLot(lot) { lot.addEventListener('click', () => createBuilding(lot)); }
+
+function unlockLot(lot) {
+  const cost = Number(lot.dataset.cost);
+  if (goldValue < cost) { selectedDescription.textContent = `자금이 부족합니다. 이 구역 해금에는 ₩${cost.toLocaleString('ko-KR')}이 필요합니다.`; return; }
+  goldValue -= cost;
+  unlockedLots += 1;
+  const emptyLot = document.createElement('button');
+  emptyLot.type = 'button';
+  emptyLot.className = `empty-lot ${[...lot.classList].filter(name => name !== 'locked-lot').join(' ')}`;
+  emptyLot.dataset.lot = lot.dataset.lot;
+  emptyLot.innerHTML = '＋<span>건설 부지</span>';
+  bindEmptyLot(emptyLot);
+  lot.replaceWith(emptyLot);
+  updateStats();
+  selectedDescription.textContent = `새 개발 구역을 해금했습니다. ${buildingData[selectedKind].name}을 지을 수 있습니다.`;
+}
+
 function createBuilding(lot) {
   const data = buildingData[selectedKind];
   if (goldValue < data.cost) { selectedDescription.textContent = `자금이 부족합니다. ₩${data.cost.toLocaleString('ko-KR')}이 필요합니다.`; return; }
@@ -63,7 +84,7 @@ function createBuilding(lot) {
   visitors += selectedKind === 'ride' ? 30 : selectedKind === 'decor' || selectedKind === 'road' ? 2 : 12;
   const building = document.createElement('button');
   building.type = 'button';
-  building.className = `place ${lotPositions[lot.dataset.lot]}`;
+  building.className = `place plot-${lot.dataset.lot} ${buildingThemes[selectedKind]}`;
   building.dataset.name = data.name;
   building.dataset.level = '1';
   building.dataset.income = String(data.income);
@@ -76,12 +97,13 @@ function createBuilding(lot) {
   showPlace(building);
 }
 
-document.querySelectorAll('.empty-lot').forEach(lot => lot.addEventListener('click', () => createBuilding(lot)));
+document.querySelectorAll('.empty-lot').forEach(bindEmptyLot);
+document.querySelectorAll('.locked-lot').forEach(lot => lot.addEventListener('click', () => unlockLot(lot)));
 document.querySelectorAll('.build-button').forEach(button => button.addEventListener('click', () => {
   document.querySelector('.build-button.active')?.classList.remove('active');
   button.classList.add('active');
   selectedKind = button.dataset.kind;
-  selectedDescription.textContent = `${buildingData[selectedKind].name} 선택됨 · 빈 부지를 눌러 ₩${buildingData[selectedKind].cost.toLocaleString('ko-KR')}에 건설하세요.`;
+  selectedDescription.textContent = `${buildingData[selectedKind].name} 선택됨 · 열린 부지를 눌러 ₩${buildingData[selectedKind].cost.toLocaleString('ko-KR')}에 건설하세요.`;
 }));
 document.querySelectorAll('.side-button').forEach(button => button.addEventListener('click', () => {
   document.querySelector('.side-button.active')?.classList.remove('active');
