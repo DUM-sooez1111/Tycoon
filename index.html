@@ -25,13 +25,17 @@
 
       <section class="play-area">
         <nav class="left-menu" aria-label="주요 메뉴">
-          <button type="button" class="side-button active"><span>▥</span>통계</button>
-          <button type="button" class="side-button"><span>▤</span>연구</button>
-          <button type="button" class="side-button"><span>⚑</span>마케팅</button>
-          <button type="button" class="side-button"><span>♟</span>직원</button>
-          <button type="button" class="side-button"><span>▣</span>상점</button>
-          <button type="button" class="side-button"><span>★</span>업적</button>
+          <button type="button" class="side-button active" data-panel="stats"><span>▥</span>통계</button>
+          <button type="button" class="side-button" data-panel="research"><span>▤</span>연구</button>
+          <button type="button" class="side-button" data-panel="marketing"><span>⚑</span>마케팅</button>
+          <button type="button" class="side-button" data-panel="staff"><span>♟</span>직원</button>
+          <button type="button" class="side-button" data-panel="shop"><span>▣</span>상점</button>
+          <button type="button" class="side-button" data-panel="achievements"><span>★</span>업적</button>
         </nav>
+        <aside id="feature-panel" class="feature-panel" aria-live="polite">
+          <button id="feature-close" class="feature-close" type="button" aria-label="패널 닫기">×</button>
+          <div id="feature-content"></div>
+        </aside>
 
         <section class="park" aria-label="타이쿤 파크 지도">
           <div class="river"></div><div class="river-bank bank-top"></div><div class="river-bank bank-bottom"></div>
