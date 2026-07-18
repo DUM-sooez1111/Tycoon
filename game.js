@@ -10,6 +10,7 @@ const population = document.querySelector('#population');
 const happiness = document.querySelector('#happiness');
 const goalCount = document.querySelector('#goal-count');
 const unlockedCount = document.querySelector('#unlocked-count');
+const constructionToast = document.querySelector('#construction-toast');
 const buildingData = {
   road: { name: '산책로', icon: '🧱', income: 0, cost: 400, description: '방문객이 이동하는 길을 넓힙니다.' },
   facility: { name: '휴게 시설', icon: '🪑', income: 300, cost: 900, description: '방문객이 잠시 쉬어갈 수 있는 공간입니다.' },
@@ -24,6 +25,7 @@ let selectedKind = 'shop';
 let goldValue = 20000;
 let visitors = 0;
 let unlockedLots = 1;
+let toastTimer;
 
 function updateStats() {
   gold.textContent = goldValue.toLocaleString('ko-KR');
@@ -59,6 +61,22 @@ function showPlace(place) {
   upgradeButton.innerHTML = '↑ 업그레이드 <small>₩ 2,500</small>';
 }
 
+function showToast(message) {
+  constructionToast.textContent = message;
+  constructionToast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => constructionToast.classList.remove('show'), 1700);
+}
+
+function updateLotPreviews() {
+  const data = buildingData[selectedKind];
+  document.querySelectorAll('.empty-lot').forEach(lot => {
+    lot.classList.add('ready-to-build');
+    lot.setAttribute('aria-label', `${data.name} 건설 · ${data.cost.toLocaleString('ko-KR')}원`);
+    lot.innerHTML = `<span class="lot-icon">${data.icon}</span><span class="lot-name">${data.name}</span><small>₩ ${data.cost.toLocaleString('ko-KR')}</small>`;
+  });
+}
+
 function bindEmptyLot(lot) { lot.addEventListener('click', () => createBuilding(lot)); }
 
 function unlockLot(lot) {
@@ -74,6 +92,8 @@ function unlockLot(lot) {
   bindEmptyLot(emptyLot);
   lot.replaceWith(emptyLot);
   updateStats();
+  updateLotPreviews();
+  showToast('새 개발 구역을 해금했습니다!');
   selectedDescription.textContent = `새 개발 구역을 해금했습니다. ${buildingData[selectedKind].name}을 지을 수 있습니다.`;
 }
 
@@ -91,10 +111,12 @@ function createBuilding(lot) {
   building.dataset.description = data.description;
   building.innerHTML = `<span class="building roof"></span><span class="building-body">${data.icon}</span><span class="awning"></span><span class="shop-label">${data.name} <b>Lv.1 ★☆☆☆☆</b></span>`;
   building.addEventListener('click', () => showPlace(building));
+  building.classList.add('placing');
   park.append(building);
   lot.remove();
   updateStats();
   showPlace(building);
+  showToast(`${data.name} 건설 완료!`);
 }
 
 document.querySelectorAll('.empty-lot').forEach(bindEmptyLot);
@@ -103,6 +125,7 @@ document.querySelectorAll('.build-button').forEach(button => button.addEventList
   document.querySelector('.build-button.active')?.classList.remove('active');
   button.classList.add('active');
   selectedKind = button.dataset.kind;
+  updateLotPreviews();
   selectedDescription.textContent = `${buildingData[selectedKind].name} 선택됨 · 열린 부지를 눌러 ₩${buildingData[selectedKind].cost.toLocaleString('ko-KR')}에 건설하세요.`;
 }));
 document.querySelectorAll('.side-button').forEach(button => button.addEventListener('click', () => {
@@ -121,3 +144,4 @@ upgradeButton.addEventListener('click', () => {
 
 updateStats();
 showEmptyState();
+updateLotPreviews();
