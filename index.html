@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>타이쿤 파크</title>
-    <link rel="stylesheet" href="style.css?v=20260719-8" />
+    <link rel="stylesheet" href="style.css?v=20260719-9" />
   </head>
   <body>
     <main class="game-screen">
@@ -41,10 +41,10 @@
           <div class="river"></div><div class="river-bank bank-top"></div><div class="river-bank bank-bottom"></div>
           <div class="bridge"><span>▦</span></div>
           <div class="fence top-fence"></div><div class="fence bottom-fence"></div>
-          <svg class="plot-paths" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-            <g class="plot-path-outline"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
-            <g class="plot-path-border"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
-            <g class="plot-path-fill"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
+          <svg class="city-road-grid" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+            <g class="city-road-shadow"><path d="M0 164 H1000"/><path d="M0 290 H1000"/><path d="M0 416 H1000"/><path d="M0 542 H1000"/><path d="M198 0 V700"/><path d="M386 0 V700"/><path d="M574 0 V700"/><path d="M762 0 V700"/></g>
+            <g class="city-road"><path d="M0 164 H1000"/><path d="M0 290 H1000"/><path d="M0 416 H1000"/><path d="M0 542 H1000"/><path d="M198 0 V700"/><path d="M386 0 V700"/><path d="M574 0 V700"/><path d="M762 0 V700"/></g>
+            <g class="city-lane"><path d="M0 164 H1000"/><path d="M0 290 H1000"/><path d="M0 416 H1000"/><path d="M0 542 H1000"/><path d="M198 0 V700"/><path d="M386 0 V700"/><path d="M574 0 V700"/><path d="M762 0 V700"/></g>
           </svg>
           <div class="plaza"><span>✦</span><small>중앙 광장</small></div>
           <div class="entrance"><b>타이쿤 파크</b><span>입구</span></div>
@@ -52,6 +52,8 @@
           <div id="construction-toast" class="construction-toast" role="status" aria-live="polite"></div>
           <div id="walker-layer" class="walker-layer" aria-hidden="true"></div>
           <div id="staff-layer" class="staff-layer" aria-hidden="true"></div>
+          <div class="city-river-edge" aria-hidden="true"></div>
+          <div class="city-cluster" aria-hidden="true"><i class="city-house house-a"></i><i class="city-house house-b"></i><i class="city-house house-c"></i><i class="city-square"></i></div>
           <div class="flower-patch flowers-one">✿ ✿</div><div class="flower-patch flowers-two">✿ ✿ ✿</div><div class="flower-patch flowers-three">✿ ✿</div>
           <div class="trees trees-one">♣ ♣ ♣</div><div class="trees trees-two">♣ ♣</div><div class="trees trees-three">♣ ♣ ♣</div><div class="trees trees-four">♣ ♣</div>
 
@@ -108,6 +110,6 @@
         <div id="building-picker-content" class="building-picker-content"></div>
       </section>
     </main>
-    <script src="game.js?v=20260719-8"></script>
+    <script src="game.js?v=20260719-9"></script>
   </body>
 </html>
