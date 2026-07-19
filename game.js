@@ -68,6 +68,10 @@ let incomeMultiplier = 1;
 let satisfactionBonus = 0;
 let currentPanel = null;
 let toastTimer;
+let mapCameraX = 220;
+let mapCameraY = 75;
+let cameraFrame = null;
+const heldCameraKeys = new Set();
 const completedResearch = new Set();
 const walkerIcons = ['🧑', '👩', '👨', '👧', '👨‍🦱', '🧑‍🦰'];
 const staffIcons = ['🧑‍💼', '🧹', '🧑‍🍳', '👷', '🧑‍🔧', '🧑‍💻'];
@@ -136,6 +140,29 @@ function showToast(message) {
   constructionToast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => constructionToast.classList.remove('show'), 1700);
+}
+
+function updateMapCamera() {
+  const maxX = Math.max(120, Math.round(park.clientWidth * .14));
+  const maxY = Math.max(80, Math.round(park.clientHeight * .11));
+  mapCameraX = Math.max(-maxX, Math.min(maxX, mapCameraX));
+  mapCameraY = Math.max(-maxY, Math.min(maxY, mapCameraY));
+  park.style.setProperty('--map-x', `${mapCameraX}px`);
+  park.style.setProperty('--map-y', `${mapCameraY}px`);
+}
+
+function moveMapCamera() {
+  const step = 6;
+  if (heldCameraKeys.has('KeyA')) mapCameraX += step;
+  if (heldCameraKeys.has('KeyD')) mapCameraX -= step;
+  if (heldCameraKeys.has('KeyW')) mapCameraY += step;
+  if (heldCameraKeys.has('KeyS')) mapCameraY -= step;
+  updateMapCamera();
+  cameraFrame = heldCameraKeys.size ? requestAnimationFrame(moveMapCamera) : null;
+}
+
+function isTextInput(element) {
+  return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement || element.isContentEditable;
 }
 
 function showEmptyState() {
@@ -308,6 +335,19 @@ upgradeButton.addEventListener('click', () => {
   showToast('건물을 업그레이드했습니다!');
 });
 
+window.addEventListener('keydown', event => {
+  if (!['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code) || isTextInput(event.target)) return;
+  event.preventDefault();
+  heldCameraKeys.add(event.code);
+  if (!cameraFrame) cameraFrame = requestAnimationFrame(moveMapCamera);
+});
+window.addEventListener('keyup', event => {
+  if (!['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) return;
+  heldCameraKeys.delete(event.code);
+});
+window.addEventListener('blur', () => heldCameraKeys.clear());
+window.addEventListener('resize', updateMapCamera);
+
 setInterval(() => {
   const income = incomePerMinute();
   if (income > 0) { goldValue += income / 12; updateStats(); }
@@ -316,3 +356,4 @@ setInterval(() => {
 updateStats();
 showEmptyState();
 updateLotPreviews();
+updateMapCamera();
