@@ -12,6 +12,7 @@ const goalCount = document.querySelector('#goal-count');
 const unlockedCount = document.querySelector('#unlocked-count');
 const constructionToast = document.querySelector('#construction-toast');
 const walkerLayer = document.querySelector('#walker-layer');
+const staffLayer = document.querySelector('#staff-layer');
 const featurePanel = document.querySelector('#feature-panel');
 const featureContent = document.querySelector('#feature-content');
 const featureClose = document.querySelector('#feature-close');
@@ -37,6 +38,7 @@ let currentPanel = null;
 let toastTimer;
 const completedResearch = new Set();
 const walkerIcons = ['🧑', '👩', '👨', '👧', '👨‍🦱', '🧑‍🦰'];
+const staffIcons = ['🧑‍💼', '🧹', '🧑‍🍳', '👷', '🧑‍🔧', '🧑‍💻'];
 
 function format(value) { return Math.round(value).toLocaleString('ko-KR'); }
 function buildingCount() { return document.querySelectorAll('.place').length; }
@@ -53,6 +55,7 @@ function updateStats() {
   unlockedCount.textContent = unlockedLots;
   document.querySelector('.goal i').style.width = `${Math.min(visitors / 10, 100)}%`;
   syncWalkers();
+  syncStaff();
   if (currentPanel) renderFeaturePanel(currentPanel);
 }
 
@@ -75,6 +78,25 @@ function syncWalkers() {
   const target = Math.min(12, Math.floor(visitors / 10));
   while (walkerLayer.children.length < target) makeWalker();
   while (walkerLayer.children.length > target) walkerLayer.lastElementChild.remove();
+}
+
+function makeStaff() {
+  const staff = document.createElement('span');
+  staff.className = 'park-staff';
+  staff.textContent = staffIcons[Math.floor(Math.random() * staffIcons.length)];
+  staff.style.setProperty('--x', `${10 + Math.random() * 70}%`);
+  staff.style.setProperty('--y', `${12 + Math.random() * 70}%`);
+  staff.style.setProperty('--staff-dx', `${Math.round(-28 + Math.random() * 56)}px`);
+  staff.style.setProperty('--staff-dy', `${Math.round(-28 + Math.random() * 56)}px`);
+  staff.style.setProperty('--staff-duration', `${7 + Math.random() * 4}s`);
+  staff.style.setProperty('--staff-delay', `${-Math.random() * 7}s`);
+  staffLayer.append(staff);
+}
+
+function syncStaff() {
+  const target = Math.min(6, employees);
+  while (staffLayer.children.length < target) makeStaff();
+  while (staffLayer.children.length > target) staffLayer.lastElementChild.remove();
 }
 
 function showToast(message) {
