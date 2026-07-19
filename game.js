@@ -11,6 +11,7 @@ const happiness = document.querySelector('#happiness');
 const goalCount = document.querySelector('#goal-count');
 const unlockedCount = document.querySelector('#unlocked-count');
 const constructionToast = document.querySelector('#construction-toast');
+const walkerLayer = document.querySelector('#walker-layer');
 const featurePanel = document.querySelector('#feature-panel');
 const featureContent = document.querySelector('#feature-content');
 const featureClose = document.querySelector('#feature-close');
@@ -35,6 +36,7 @@ let satisfactionBonus = 0;
 let currentPanel = null;
 let toastTimer;
 const completedResearch = new Set();
+const walkerIcons = ['🧑', '👩', '👨', '👧', '👨‍🦱', '🧑‍🦰'];
 
 function format(value) { return Math.round(value).toLocaleString('ko-KR'); }
 function buildingCount() { return document.querySelectorAll('.place').length; }
@@ -50,7 +52,29 @@ function updateStats() {
   goalCount.textContent = `${format(visitors)} / 1000`;
   unlockedCount.textContent = unlockedLots;
   document.querySelector('.goal i').style.width = `${Math.min(visitors / 10, 100)}%`;
+  syncWalkers();
   if (currentPanel) renderFeaturePanel(currentPanel);
+}
+
+function makeWalker() {
+  const walker = document.createElement('span');
+  walker.className = 'park-walker';
+  walker.textContent = walkerIcons[Math.floor(Math.random() * walkerIcons.length)];
+  walker.style.setProperty('--x', `${6 + Math.random() * 82}%`);
+  walker.style.setProperty('--y', `${8 + Math.random() * 78}%`);
+  walker.style.setProperty('--dx-one', `${Math.round(-32 + Math.random() * 64)}px`);
+  walker.style.setProperty('--dy-one', `${Math.round(-24 + Math.random() * 48)}px`);
+  walker.style.setProperty('--dx-two', `${Math.round(-32 + Math.random() * 64)}px`);
+  walker.style.setProperty('--dy-two', `${Math.round(-24 + Math.random() * 48)}px`);
+  walker.style.setProperty('--duration', `${5 + Math.random() * 5}s`);
+  walker.style.setProperty('--delay', `${-Math.random() * 6}s`);
+  walkerLayer.append(walker);
+}
+
+function syncWalkers() {
+  const target = Math.min(12, Math.floor(visitors / 10));
+  while (walkerLayer.children.length < target) makeWalker();
+  while (walkerLayer.children.length > target) walkerLayer.lastElementChild.remove();
 }
 
 function showToast(message) {
