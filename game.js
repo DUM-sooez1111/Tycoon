@@ -124,7 +124,8 @@ function createBuilding(lot) {
   building.dataset.level = '1';
   building.dataset.income = String(data.income);
   building.dataset.description = data.description;
-  building.innerHTML = `<span class="building roof"></span><span class="building-body">${data.icon}</span><span class="awning"></span><span class="shop-label">${data.name} <b>Lv.1 ★☆☆☆☆</b></span>`;
+  building.classList.add('compact-building');
+  building.innerHTML = `<span class="compact-icon">${data.icon}</span><span class="compact-name">${data.name}</span><small class="compact-level">Lv.1</small>`;
   building.addEventListener('click', () => showPlace(building));
   park.append(building);
   lot.remove();
