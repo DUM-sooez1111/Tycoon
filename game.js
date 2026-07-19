@@ -16,6 +16,10 @@ const staffLayer = document.querySelector('#staff-layer');
 const featurePanel = document.querySelector('#feature-panel');
 const featureContent = document.querySelector('#feature-content');
 const featureClose = document.querySelector('#feature-close');
+const buildingPicker = document.querySelector('#building-picker');
+const buildingPickerTitle = document.querySelector('#building-picker-title');
+const buildingPickerContent = document.querySelector('#building-picker-content');
+const buildingPickerClose = document.querySelector('#building-picker-close');
 
 const buildingData = {
   road: { name: '산책로', icon: '🧱', income: 0, cost: 400, description: '방문객이 이동하는 길을 넓힙니다.' },
@@ -26,8 +30,36 @@ const buildingData = {
   other: { name: '간이 매점', icon: '🥖', income: 450, cost: 1100, description: '간단한 간식을 판매하는 작은 매점입니다.' },
 };
 const buildingThemes = { road: 'road-building', facility: 'cafe', shop: 'shop', ride: 'ride-building', decor: 'decor-building', other: 'bakery' };
+const buildingCatalog = {
+  facility: [
+    { name: '휴식 벤치', icon: '🪑', income: 120, cost: 500, description: '손님이 편히 쉬는 작은 휴식 공간입니다.' },
+    { name: '화장실', icon: '🚻', income: 180, cost: 800, description: '파크 편의성을 높이는 필수 시설입니다.' },
+    { name: '푸드 코트', icon: '🍜', income: 500, cost: 1500, description: '다양한 음식을 판매하는 편의 시설입니다.' },
+  ],
+  shop: [
+    { name: '기념품 상점', icon: '🎁', income: 600, cost: 1500, description: '첫 수익을 만드는 기념품 상점입니다.' },
+    { name: '베이커리', icon: '🥖', income: 850, cost: 2200, description: '갓 구운 빵을 판매하는 인기 상점입니다.' },
+    { name: '게임 상점', icon: '🎮', income: 1200, cost: 3500, description: '즐길 거리를 판매하는 게임 전문 상점입니다.' },
+  ],
+  ride: [
+    { name: '회전목마', icon: '🎠', income: 1200, cost: 5000, description: '가족 손님이 좋아하는 클래식 놀이기구입니다.' },
+    { name: '미니 관람차', icon: '🎡', income: 1800, cost: 8000, description: '공원을 내려다보는 인기 놀이기구입니다.' },
+    { name: '롤러코스터', icon: '🎢', income: 3000, cost: 14000, description: '방문객을 크게 불러오는 대표 놀이기구입니다.' },
+  ],
+  decor: [
+    { name: '작은 분수', icon: '⛲', income: 0, cost: 1200, description: '파크의 만족도를 높이는 장식입니다.' },
+    { name: '꽃 정원', icon: '🌷', income: 0, cost: 1800, description: '보기 좋은 꽃으로 만족도가 오릅니다.' },
+    { name: '조각상', icon: '🗿', income: 0, cost: 2800, description: '파크의 상징이 되는 특별한 장식입니다.' },
+  ],
+  other: [
+    { name: '간이 매점', icon: '🥤', income: 450, cost: 1100, description: '간단한 간식을 판매하는 작은 매점입니다.' },
+    { name: '자판기', icon: '🥫', income: 250, cost: 700, description: '손님이 빠르게 이용할 수 있는 자판기입니다.' },
+    { name: '사진 부스', icon: '📸', income: 700, cost: 1900, description: '추억을 남기는 인기 사진 부스입니다.' },
+  ],
+};
 let selected = null;
 let selectedKind = 'shop';
+let selectedBuilding = buildingCatalog.shop[0];
 let goldValue = 20000;
 let visitors = 0;
 let unlockedLots = 1;
@@ -132,7 +164,7 @@ function showPlace(place) {
 }
 
 function updateLotPreviews() {
-  const data = buildingData[selectedKind];
+  const data = selectedBuilding;
   document.querySelectorAll('.empty-lot').forEach(lot => {
     lot.classList.add('ready-to-build');
     lot.setAttribute('aria-label', `${data.name} 건설 · ${format(data.cost)}원`);
@@ -159,7 +191,7 @@ function unlockLot(lot) {
 }
 
 function createBuilding(lot) {
-  const data = buildingData[selectedKind];
+  const data = selectedBuilding;
   if (goldValue < data.cost) { showToast(`건설 자금이 ₩${format(data.cost)} 필요합니다.`); return; }
   goldValue -= data.cost;
   visitors += selectedKind === 'ride' ? 30 : selectedKind === 'decor' || selectedKind === 'road' ? 2 : 12;
@@ -180,12 +212,20 @@ function createBuilding(lot) {
   showToast(`${data.name} 건설 완료!`);
 }
 
-function chooseBuildKind(kind) {
+function chooseBuildKind(kind, optionIndex = 0) {
   selectedKind = kind;
+  selectedBuilding = buildingCatalog[kind][optionIndex] || buildingCatalog[kind][0];
   document.querySelector('.build-button.active')?.classList.remove('active');
   document.querySelector(`.build-button[data-kind="${kind}"]`)?.classList.add('active');
   updateLotPreviews();
-  selectedDescription.textContent = `${buildingData[kind].name} 선택됨 · 열린 부지를 눌러 ₩${format(buildingData[kind].cost)}에 건설하세요.`;
+  selectedDescription.textContent = `${selectedBuilding.name} 선택됨 · 열린 부지를 눌러 ₩${format(selectedBuilding.cost)}에 건설하세요.`;
+}
+
+function openBuildingPicker(kind) {
+  const labels = { facility: '편의시설', shop: '상점', ride: '놀이기구', decor: '장식', other: '기타' };
+  buildingPickerTitle.textContent = `${labels[kind]} 건물 선택`;
+  buildingPickerContent.innerHTML = buildingCatalog[kind].map((building, index) => `<button class="building-option" type="button" data-building-kind="${kind}" data-building-option="${index}"><span>${building.icon}</span><b>${building.name}</b><small>수익 ${building.income ? `+₩ ${format(building.income)}/분` : '만족도 상승'} · ₩ ${format(building.cost)}</small></button>`).join('');
+  buildingPicker.classList.add('open');
 }
 
 function actionButton(label, action, disabled = false) {
@@ -232,14 +272,14 @@ function handleFeatureAction(action) {
   if (action === 'marketing-flyer' && spend(1000)) { visitors += 40; showToast('전단지 마케팅 완료! 방문객 +40'); }
   if (action === 'marketing-festival' && spend(3500)) { visitors += 120; satisfactionBonus += 3; showToast('주말 축제가 성공했습니다!'); }
   if (action === 'hire-staff' && spend(2000)) { employees += 1; showToast('운영 직원을 채용했습니다!'); }
-  if (action.startsWith('build-')) { chooseBuildKind(action.replace('build-', '')); featurePanel.classList.remove('open'); currentPanel = null; showToast('건물을 선택했습니다. 열린 부지를 클릭하세요.'); }
+  if (action.startsWith('build-')) { openBuildingPicker(action.replace('build-', '')); featurePanel.classList.remove('open'); currentPanel = null; }
   updateStats();
   if (currentPanel) renderFeaturePanel(currentPanel);
 }
 
 document.querySelectorAll('.empty-lot').forEach(bindEmptyLot);
 document.querySelectorAll('.locked-lot').forEach(lot => lot.addEventListener('click', () => unlockLot(lot)));
-document.querySelectorAll('.build-button').forEach(button => button.addEventListener('click', () => chooseBuildKind(button.dataset.kind)));
+document.querySelectorAll('.build-button').forEach(button => button.addEventListener('click', () => openBuildingPicker(button.dataset.kind)));
 document.querySelectorAll('.side-button').forEach(button => button.addEventListener('click', () => {
   document.querySelector('.side-button.active')?.classList.remove('active');
   button.classList.add('active');
@@ -249,6 +289,14 @@ featureClose.addEventListener('click', () => { featurePanel.classList.remove('op
 featureContent.addEventListener('click', event => {
   const button = event.target.closest('[data-action]');
   if (button && !button.disabled) handleFeatureAction(button.dataset.action);
+});
+buildingPickerClose.addEventListener('click', () => buildingPicker.classList.remove('open'));
+buildingPickerContent.addEventListener('click', event => {
+  const option = event.target.closest('[data-building-kind]');
+  if (!option) return;
+  chooseBuildKind(option.dataset.buildingKind, Number(option.dataset.buildingOption));
+  buildingPicker.classList.remove('open');
+  showToast(`${selectedBuilding.name}을 선택했습니다. 열린 부지를 클릭하세요.`);
 });
 upgradeButton.addEventListener('click', () => {
   if (!selected || !spend(2500)) return;
