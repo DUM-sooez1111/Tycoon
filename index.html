@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>타이쿤 파크</title>
-    <link rel="stylesheet" href="style.css?v=20260719-5" />
+    <link rel="stylesheet" href="style.css?v=20260719-6" />
   </head>
   <body>
     <main class="game-screen">
@@ -41,6 +41,11 @@
           <div class="river"></div><div class="river-bank bank-top"></div><div class="river-bank bank-bottom"></div>
           <div class="bridge"><span>▦</span></div>
           <div class="fence top-fence"></div><div class="fence bottom-fence"></div>
+          <svg class="plot-paths" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+            <g class="plot-path-outline"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
+            <g class="plot-path-border"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
+            <g class="plot-path-fill"><path d="M38 162 H962"/><path d="M38 288 H962"/><path d="M38 414 H962"/><path d="M38 540 H962"/><path d="M208 28 V672"/><path d="M378 28 V672"/><path d="M548 28 V672"/><path d="M718 28 V672"/></g>
+          </svg>
           <div class="plaza"><span>✦</span><small>중앙 광장</small></div>
           <div class="entrance"><b>타이쿤 파크</b><span>입구</span></div>
           <div class="map-note">첫 건물을 지을 빈 부지를 선택하세요</div>
@@ -99,6 +104,6 @@
         <section class="goal"><b>목표</b><span>★ 손님 수 1,000명 달성</span><div><i></i><em id="goal-count">0 / 1000</em></div></section>
       </footer>
     </main>
-    <script src="game.js?v=20260719-5"></script>
+    <script src="game.js?v=20260719-6"></script>
   </body>
 </html>
