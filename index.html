@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>타이쿤 파크</title>
-    <link rel="stylesheet" href="style.css?v=20260719-7" />
+    <link rel="stylesheet" href="style.css?v=20260719-8" />
   </head>
   <body>
     <main class="game-screen">
@@ -102,7 +102,12 @@
         <button type="button" class="build-button" data-kind="other"><span>•••</span>기타</button>
         <section class="goal"><b>목표</b><span>★ 손님 수 1,000명 달성</span><div><i></i><em id="goal-count">0 / 1000</em></div></section>
       </footer>
+      <section id="building-picker" class="building-picker" aria-live="polite">
+        <button id="building-picker-close" class="building-picker-close" type="button" aria-label="건물 목록 닫기">×</button>
+        <p id="building-picker-title" class="building-picker-title">건물 선택</p>
+        <div id="building-picker-content" class="building-picker-content"></div>
+      </section>
     </main>
-    <script src="game.js?v=20260719-7"></script>
+    <script src="game.js?v=20260719-8"></script>
   </body>
 </html>
