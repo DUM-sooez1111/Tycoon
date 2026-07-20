@@ -152,7 +152,7 @@ function updateMapCamera() {
 }
 
 function moveMapCamera() {
-  const step = 6;
+  const step = 11;
   if (heldCameraKeys.has('KeyA')) mapCameraX += step;
   if (heldCameraKeys.has('KeyD')) mapCameraX -= step;
   if (heldCameraKeys.has('KeyW')) mapCameraY += step;
