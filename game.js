@@ -68,8 +68,8 @@ let incomeMultiplier = 1;
 let satisfactionBonus = 0;
 let currentPanel = null;
 let toastTimer;
-let mapCameraX = 220;
-let mapCameraY = 75;
+let mapCameraX = 235;
+let mapCameraY = 110;
 let cameraFrame = null;
 const heldCameraKeys = new Set();
 const completedResearch = new Set();
@@ -194,6 +194,7 @@ function updateLotPreviews() {
   const data = selectedBuilding;
   document.querySelectorAll('.empty-lot').forEach(lot => {
     lot.classList.add('ready-to-build');
+    lot.dataset.previewKind = selectedKind;
     lot.setAttribute('aria-label', `${data.name} 건설 · ${format(data.cost)}원`);
     lot.innerHTML = `<span class="lot-icon">${data.icon}</span><span class="lot-name">${data.name}</span><small>₩ ${format(data.cost)}</small>`;
   });
