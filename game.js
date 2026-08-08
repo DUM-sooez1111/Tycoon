@@ -175,6 +175,9 @@ function restoreSavedPlace(savedPlace) {
   place.type = 'button';
   place.className = savedPlace.className || 'place';
   Object.assign(place.dataset, savedPlace.data || {});
+  if (place.classList.contains('ride-building') && ![...place.classList].some(name => name.startsWith('ride-style-'))) {
+    place.classList.add(`ride-style-${Math.max(0, buildingCatalog.ride.findIndex(ride => ride.name === place.dataset.name))}`);
+  }
   if (savedPlace.left) place.style.left = savedPlace.left;
   if (savedPlace.top) place.style.top = savedPlace.top;
   place.innerHTML = savedPlace.html || '';
@@ -339,6 +342,7 @@ function createBuilding(lot) {
   const building = document.createElement('button');
   building.type = 'button';
   building.className = `place plot-${lot.dataset.lot} ${buildingThemes[selectedKind]} placing`;
+  if (selectedKind === 'ride') building.classList.add(`ride-style-${buildingCatalog.ride.indexOf(data)}`);
   building.dataset.name = data.name;
   building.dataset.level = '1';
   building.dataset.income = String(data.income);
