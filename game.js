@@ -99,14 +99,7 @@ function makeWalker() {
   const walker = document.createElement('span');
   walker.className = 'park-walker';
   walker.textContent = walkerIcons[Math.floor(Math.random() * walkerIcons.length)];
-  walker.style.setProperty('--x', `${6 + Math.random() * 82}%`);
-  walker.style.setProperty('--y', `${8 + Math.random() * 78}%`);
-  walker.style.setProperty('--dx-one', `${Math.round(-32 + Math.random() * 64)}px`);
-  walker.style.setProperty('--dy-one', `${Math.round(-24 + Math.random() * 48)}px`);
-  walker.style.setProperty('--dx-two', `${Math.round(-32 + Math.random() * 64)}px`);
-  walker.style.setProperty('--dy-two', `${Math.round(-24 + Math.random() * 48)}px`);
-  walker.style.setProperty('--duration', `${5 + Math.random() * 5}s`);
-  walker.style.setProperty('--delay', `${-Math.random() * 6}s`);
+  setRoadRoute(walker, false);
   walkerLayer.append(walker);
 }
 
@@ -120,12 +113,7 @@ function makeStaff() {
   const staff = document.createElement('span');
   staff.className = 'park-staff';
   staff.textContent = staffIcons[Math.floor(Math.random() * staffIcons.length)];
-  staff.style.setProperty('--x', `${10 + Math.random() * 70}%`);
-  staff.style.setProperty('--y', `${12 + Math.random() * 70}%`);
-  staff.style.setProperty('--staff-dx', `${Math.round(-28 + Math.random() * 56)}px`);
-  staff.style.setProperty('--staff-dy', `${Math.round(-28 + Math.random() * 56)}px`);
-  staff.style.setProperty('--staff-duration', `${7 + Math.random() * 4}s`);
-  staff.style.setProperty('--staff-delay', `${-Math.random() * 7}s`);
+  setRoadRoute(staff, true);
   staffLayer.append(staff);
 }
 
@@ -133,6 +121,29 @@ function syncStaff() {
   const target = Math.min(6, employees);
   while (staffLayer.children.length < target) makeStaff();
   while (staffLayer.children.length > target) staffLayer.lastElementChild.remove();
+}
+
+function setRoadRoute(person, isStaff) {
+  const horizontalRoads = [16.4, 29, 41.6, 54.2];
+  const verticalRoads = [19.8, 38.6, 57.4, 76.2];
+  const horizontal = Math.random() > .45;
+  const forward = Math.random() > .5;
+  const laneOffset = isStaff ? 10 : -8;
+  const distance = horizontal ? park.clientWidth * .9 : park.clientHeight * .84;
+  if (horizontal) {
+    person.style.setProperty('--route-x', `${forward ? 4 : 95}%`);
+    person.style.setProperty('--route-y', `calc(${horizontalRoads[Math.floor(Math.random() * horizontalRoads.length)]}% + ${laneOffset}px)`);
+    person.style.setProperty('--travel-x', `${forward ? distance : -distance}px`);
+    person.style.setProperty('--travel-y', '0px');
+  } else {
+    person.style.setProperty('--route-x', `calc(${verticalRoads[Math.floor(Math.random() * verticalRoads.length)]}% + ${laneOffset}px)`);
+    person.style.setProperty('--route-y', `${forward ? 4 : 92}%`);
+    person.style.setProperty('--travel-x', '0px');
+    person.style.setProperty('--travel-y', `${forward ? distance : -distance}px`);
+  }
+  person.style.setProperty('--walk-scale', forward ? '1' : '-1');
+  person.style.setProperty('--duration', `${isStaff ? 8 + Math.random() * 3 : 6 + Math.random() * 4}s`);
+  person.style.setProperty('--delay', `${-Math.random() * 8}s`);
 }
 
 function showToast(message) {
