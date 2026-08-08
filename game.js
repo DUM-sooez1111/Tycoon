@@ -30,6 +30,7 @@ const buildingData = {
   other: { name: '간이 매점', icon: '🥖', income: 450, cost: 1100, description: '간단한 간식을 판매하는 작은 매점입니다.' },
 };
 const buildingThemes = { road: 'road-building', facility: 'cafe', shop: 'shop', ride: 'ride-building', decor: 'decor-building', other: 'bakery' };
+const roadsideBench = { name: '길가 벤치', icon: '🪑', income: 0, cost: 600, description: '손님이 잠시 쉬어 갈 수 있는 길가 벤치입니다.' };
 const buildingCatalog = {
   facility: [
     { name: '휴식 벤치', icon: '🪑', income: 120, cost: 500, description: '손님이 편히 쉬는 작은 휴식 공간입니다.' },
@@ -204,6 +205,13 @@ function showPlace(place) {
 function updateLotPreviews() {
   const data = selectedBuilding;
   document.querySelectorAll('.empty-lot').forEach(lot => {
+    if (selectedKind === 'decor') {
+      lot.classList.remove('ready-to-build');
+      lot.removeAttribute('data-preview-kind');
+      lot.setAttribute('aria-label', '장식은 길을 클릭해 설치하세요');
+      lot.innerHTML = '';
+      return;
+    }
     lot.classList.add('ready-to-build');
     lot.dataset.previewKind = selectedKind;
     lot.setAttribute('aria-label', `${data.name} 건설 · ${format(data.cost)}원`);
@@ -230,6 +238,7 @@ function unlockLot(lot) {
 }
 
 function createBuilding(lot) {
+  if (selectedKind === 'decor') { showToast('장식은 도로 위를 클릭해 설치하세요.'); return; }
   const data = selectedBuilding;
   if (goldValue < data.cost) { showToast(`건설 자금이 ₩${format(data.cost)} 필요합니다.`); return; }
   goldValue -= data.cost;
@@ -249,6 +258,38 @@ function createBuilding(lot) {
   updateStats();
   showPlace(building);
   showToast(`${data.name} 건설 완료!`);
+}
+
+function isRoadPosition(x, y) {
+  const horizontalRoads = [16.4, 29, 41.6, 54.2];
+  const verticalRoads = [19.8, 38.6, 57.4, 76.2];
+  return horizontalRoads.some(line => Math.abs(y - line) < 3.7) || verticalRoads.some(line => Math.abs(x - line) < 3.7);
+}
+
+function createRoadsideBench(event) {
+  if (selectedKind !== 'decor' || event.target.closest('button, .place, .city-cluster')) return;
+  const bounds = park.getBoundingClientRect();
+  const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+  const y = ((event.clientY - bounds.top) / bounds.height) * 100;
+  if (!isRoadPosition(x, y)) { showToast('넓은 도로 위를 클릭해 벤치를 설치하세요.'); return; }
+  if (!spend(roadsideBench.cost)) return;
+  const bench = document.createElement('button');
+  bench.type = 'button';
+  bench.className = 'place road-decor placing';
+  bench.style.left = `${x}%`;
+  bench.style.top = `${y}%`;
+  bench.dataset.name = roadsideBench.name;
+  bench.dataset.level = '1';
+  bench.dataset.income = '0';
+  bench.dataset.description = roadsideBench.description;
+  bench.innerHTML = '<span class="bench-back"></span><span class="bench-seat"></span><span class="bench-legs"></span>';
+  bench.addEventListener('click', () => showPlace(bench));
+  park.append(bench);
+  visitors += 1;
+  satisfactionBonus += 1;
+  updateStats();
+  showPlace(bench);
+  showToast('길가 벤치를 설치했습니다!');
 }
 
 function chooseBuildKind(kind, optionIndex = 0) {
@@ -337,6 +378,7 @@ buildingPickerContent.addEventListener('click', event => {
   buildingPicker.classList.remove('open');
   showToast(`${selectedBuilding.name}을 선택했습니다. 열린 부지를 클릭하세요.`);
 });
+park.addEventListener('click', createRoadsideBench);
 upgradeButton.addEventListener('click', () => {
   if (!selected || !spend(2500)) return;
   selected.dataset.level = String(Number(selected.dataset.level) + 1);
