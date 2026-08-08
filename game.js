@@ -11,6 +11,10 @@ const happiness = document.querySelector('#happiness');
 const goalCount = document.querySelector('#goal-count');
 const unlockedCount = document.querySelector('#unlocked-count');
 const constructionToast = document.querySelector('#construction-toast');
+const landPurchaseDialog = document.querySelector('#land-purchase-dialog');
+const landPurchaseCost = document.querySelector('#land-purchase-cost');
+const landPurchaseConfirm = document.querySelector('#land-purchase-confirm');
+const landPurchaseCancel = document.querySelector('#land-purchase-cancel');
 const walkerLayer = document.querySelector('#walker-layer');
 const staffLayer = document.querySelector('#staff-layer');
 const featurePanel = document.querySelector('#feature-panel');
@@ -69,6 +73,10 @@ let incomeMultiplier = 1;
 let satisfactionBonus = 0;
 let currentPanel = null;
 let toastTimer;
+let pendingLandLot = null;
+const SAVE_KEY = 'tycoon-city-save-v1';
+let autoSaveTimer;
+let gameReady = false;
 let mapCameraX = 235;
 let mapCameraY = 110;
 let cameraFrame = null;
@@ -94,6 +102,7 @@ function updateStats() {
   syncWalkers();
   syncStaff();
   if (currentPanel) renderFeaturePanel(currentPanel);
+  if (gameReady) scheduleAutoSave();
 }
 
 function makeWalker() {
@@ -122,6 +131,82 @@ function syncStaff() {
   const target = Math.min(6, employees);
   while (staffLayer.children.length < target) makeStaff();
   while (staffLayer.children.length > target) staffLayer.lastElementChild.remove();
+}
+
+function scheduleAutoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveGame, 250);
+}
+
+function saveGame() {
+  if (!gameReady) return;
+  const lots = Array.from({ length: 25 }, (_, index) => {
+    const id = String(index + 1);
+    const lot = park.querySelector(`[data-lot="${id}"]`);
+    return { id, status: lot ? (lot.classList.contains('locked-lot') ? 'locked' : 'open') : 'built' };
+  });
+  const places = [...park.querySelectorAll('.place')].map(place => ({
+    className: place.className.replace(' selected', '').replace(' placing', ''),
+    data: { ...place.dataset },
+    left: place.style.left,
+    top: place.style.top,
+    html: place.innerHTML,
+  }));
+  const selectedOption = Math.max(0, buildingCatalog[selectedKind]?.indexOf(selectedBuilding) ?? 0);
+  const data = {
+    goldValue, visitors, unlockedLots, employees, incomeMultiplier, satisfactionBonus,
+    completedResearch: [...completedResearch], selectedKind, selectedOption, mapCameraX, mapCameraY,
+    lots, places,
+  };
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (_) { /* storage can be unavailable */ }
+}
+
+function openSavedLot(lot) {
+  const emptyLot = document.createElement('button');
+  emptyLot.type = 'button';
+  emptyLot.className = `empty-lot ${[...lot.classList].filter(name => name !== 'locked-lot').join(' ')}`;
+  emptyLot.dataset.lot = lot.dataset.lot;
+  bindEmptyLot(emptyLot);
+  lot.replaceWith(emptyLot);
+}
+
+function restoreSavedPlace(savedPlace) {
+  const place = document.createElement('button');
+  place.type = 'button';
+  place.className = savedPlace.className || 'place';
+  Object.assign(place.dataset, savedPlace.data || {});
+  if (savedPlace.left) place.style.left = savedPlace.left;
+  if (savedPlace.top) place.style.top = savedPlace.top;
+  place.innerHTML = savedPlace.html || '';
+  place.addEventListener('click', () => showPlace(place));
+  park.append(place);
+}
+
+function restoreGame() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (_) { return; }
+  if (!saved || !Array.isArray(saved.lots) || !Array.isArray(saved.places)) return;
+  goldValue = Number(saved.goldValue) || goldValue;
+  visitors = Number(saved.visitors) || 0;
+  unlockedLots = Number(saved.unlockedLots) || 1;
+  employees = Number(saved.employees) || 0;
+  incomeMultiplier = Number(saved.incomeMultiplier) || 1;
+  satisfactionBonus = Number(saved.satisfactionBonus) || 0;
+  mapCameraX = Number.isFinite(saved.mapCameraX) ? saved.mapCameraX : mapCameraX;
+  mapCameraY = Number.isFinite(saved.mapCameraY) ? saved.mapCameraY : mapCameraY;
+  completedResearch.clear();
+  (saved.completedResearch || []).forEach(item => completedResearch.add(item));
+  if (buildingCatalog[saved.selectedKind]) {
+    selectedKind = saved.selectedKind;
+    selectedBuilding = buildingCatalog[selectedKind][saved.selectedOption] || buildingCatalog[selectedKind][0];
+  }
+  saved.lots.forEach(state => {
+    const lot = park.querySelector(`[data-lot="${state.id}"]`);
+    if (!lot) return;
+    if (state.status === 'built') lot.remove();
+    else if (state.status === 'open' && lot.classList.contains('locked-lot')) openSavedLot(lot);
+  });
+  saved.places.forEach(restoreSavedPlace);
 }
 
 function setRoadRoute(person, isStaff) {
@@ -226,15 +311,23 @@ function unlockLot(lot) {
   if (goldValue < cost) { showToast(`해금 자금이 ₩${format(cost)} 필요합니다.`); return; }
   goldValue -= cost;
   unlockedLots += 1;
-  const emptyLot = document.createElement('button');
-  emptyLot.type = 'button';
-  emptyLot.className = `empty-lot ${[...lot.classList].filter(name => name !== 'locked-lot').join(' ')}`;
-  emptyLot.dataset.lot = lot.dataset.lot;
-  bindEmptyLot(emptyLot);
-  lot.replaceWith(emptyLot);
+  openSavedLot(lot);
   updateLotPreviews();
   updateStats();
   showToast('새 개발 구역을 해금했습니다!');
+}
+
+function requestUnlockLot(lot) {
+  pendingLandLot = lot;
+  const cost = Number(lot.dataset.cost);
+  landPurchaseCost.textContent = `₩ ${format(cost)}`;
+  landPurchaseConfirm.disabled = goldValue < cost;
+  landPurchaseDialog.hidden = false;
+}
+
+function closeLandPurchaseDialog() {
+  pendingLandLot = null;
+  landPurchaseDialog.hidden = true;
 }
 
 function createBuilding(lot) {
@@ -358,7 +451,7 @@ function handleFeatureAction(action) {
 }
 
 document.querySelectorAll('.empty-lot').forEach(bindEmptyLot);
-document.querySelectorAll('.locked-lot').forEach(lot => lot.addEventListener('click', () => unlockLot(lot)));
+document.querySelectorAll('.locked-lot').forEach(lot => lot.addEventListener('click', () => requestUnlockLot(lot)));
 document.querySelectorAll('.build-button').forEach(button => button.addEventListener('click', () => openBuildingPicker(button.dataset.kind)));
 document.querySelectorAll('.side-button').forEach(button => button.addEventListener('click', () => {
   document.querySelector('.side-button.active')?.classList.remove('active');
@@ -371,6 +464,13 @@ featureContent.addEventListener('click', event => {
   if (button && !button.disabled) handleFeatureAction(button.dataset.action);
 });
 buildingPickerClose.addEventListener('click', () => buildingPicker.classList.remove('open'));
+landPurchaseCancel.addEventListener('click', closeLandPurchaseDialog);
+landPurchaseConfirm.addEventListener('click', () => {
+  if (!pendingLandLot) return;
+  const lot = pendingLandLot;
+  closeLandPurchaseDialog();
+  unlockLot(lot);
+});
 buildingPickerContent.addEventListener('click', event => {
   const option = event.target.closest('[data-building-kind]');
   if (!option) return;
@@ -398,16 +498,21 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keyup', event => {
   if (!['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) return;
   heldCameraKeys.delete(event.code);
+  scheduleAutoSave();
 });
 window.addEventListener('blur', () => heldCameraKeys.clear());
 window.addEventListener('resize', updateMapCamera);
+window.addEventListener('beforeunload', saveGame);
 
 setInterval(() => {
   const income = incomePerMinute();
   if (income > 0) { goldValue += income / 12; updateStats(); }
 }, 5000);
 
-updateStats();
+restoreGame();
 showEmptyState();
 updateLotPreviews();
 updateMapCamera();
+gameReady = true;
+updateStats();
+saveGame();
