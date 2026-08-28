@@ -181,6 +181,7 @@ function restoreSavedPlace(savedPlace) {
   if (savedPlace.left) place.style.left = savedPlace.left;
   if (savedPlace.top) place.style.top = savedPlace.top;
   place.innerHTML = savedPlace.html || '';
+  syncBuildingLevelLabel(place);
   place.addEventListener('click', () => showPlace(place));
   park.append(place);
 }
@@ -276,11 +277,17 @@ function showEmptyState() {
   upgradeButton.textContent = '건물을 선택하세요';
 }
 
+function syncBuildingLevelLabel(place) {
+  const label = place.querySelector('.compact-level');
+  if (label) label.textContent = `Lv.${Number(place.dataset.level) || 1}`;
+}
+
 function showPlace(place) {
   document.querySelectorAll('.place.selected').forEach(item => item.classList.remove('selected'));
   place.classList.add('selected');
   selected = place;
   const level = Number(place.dataset.level);
+  syncBuildingLevelLabel(place);
   selectedName.textContent = place.dataset.name;
   selectedLevel.textContent = `Lv.${level}`;
   selectedIncome.textContent = Number(place.dataset.income) ? `+${format(Number(place.dataset.income) * incomeMultiplier * (1 + employees * .05))}/분` : '만족도 +5%';
